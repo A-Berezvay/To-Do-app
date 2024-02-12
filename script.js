@@ -1,27 +1,46 @@
-const taskInput = document.getElementById('taskInput');
-const addTaskBtn = document.getElementById('addTaskBtn');
-const taskList = document.getElementById('taskList');
+document.addEventListener('DOMContentLoaded', function() {
+    const todoList = document.querySelector('#todo-list');
+    const todoInput = document.querySelector('#todo-input');
+    const addButton = document.querySelector('#add-button');
 
-// Add task
-addTaskBtn.addEventListener('click', () => {
-    const taskText = taskInput.value.trim();
-    if (taskText !== '') {
-        const li = document.createElement('li');
-        li.textContent = taskText;
-        taskList.appendChild(li);
-        taskInput.value = '';
+    // Load todos from local storage
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
 
-        // Add delete button
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.classList.add('delete-btn');
-        li.appendChild(deleteBtn);
-
-        // Remove task on delete button click
-        deleteBtn.addEventListener('click', () => {
-            li.remove();
+    // Function to render todos
+    function renderTodos() {
+        todoList.innerHTML = '';
+        todos.forEach(function(todo, index) {
+            const todoItem = document.createElement('li');
+            todoItem.innerHTML = `
+                <span>${todo}</span>
+                <button class="delete-button" data-index="${index}">Delete</button>
+            `;
+            todoList.appendChild(todoItem);
         });
-    } else {
-        alert('Please enter a task!');
     }
+
+    // Add todo
+    addButton.addEventListener('click', function() {
+        const todoText = todoInput.value.trim();
+        if (todoText !== '') {
+            todos.push(todoText);
+            localStorage.setItem('todos', JSON.stringify(todos));
+            renderTodos();
+            todoInput.value = '';
+        }
+    });
+
+    // Delete todo
+    todoList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('delete-button')) {
+            const index = event.target.dataset.index;
+            todos.splice(index, 1);
+            localStorage.setItem('todos', JSON.stringify(todos));
+            renderTodos();
+        }
+    });
+
+    // Initial render
+    renderTodos();
 });
+
